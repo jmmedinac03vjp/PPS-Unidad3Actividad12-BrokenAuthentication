@@ -201,10 +201,94 @@ Debido a que '1'='1' es siempre verdadero, el atacante obtendría acceso.
 ![](images/ba6.png)
 
 ## Mitigación: Código Seguro en PHP
+---
 
 ** Uso de contraseñas cifradas con password_hash**
 ---
 
+La primera aproximación es no guardar las contraseñas en texto, sino aplicarle encriptación o hash que lo hemos visto ya en los contenidos teóricos.
+
+Para almacenar las contraseñas hasheadas, deberemos de modificar la tabla donde guardamos los usuarios, por lo que tenemos que realizar varias operaciones:
+
+> **Modificamos la tabla de contraseñas de la BBDD**
+>
+> Ejecutamos la consulta sobre la BBDD 
+>
+> Recuerda que:
+>
+> - Accedemos al contenedor de la BBDD:
+>
+>~~~
+> docker exec -it lamp-mysql8 /bin/bash
+>~~~
+>
+> - Nos conectamos a la Base de Datos como usuario root con mysql y despues ejecutar la consulta).
+>
+>~~~
+> mysql -u root -p
+>~~~
+>
+> - Y seleccionamos la BBDD y modificamos la tabla:
+>
+>~~~
+> USE usuarios
+> ALTER TABLE usuarios MODIFY contrasenya VARCHAR(255) NOT NULL; 
+>~~~
+>
+>![](images/ba7.png)
+
+
+>**Creamos la función *ạdd_users.php* para introducir los usuarios con su contraseña hasheada:
+~~~
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors',1);
+// Conexión a la base de datos
+$conn = new mysqli("localhost", "root", "root", "testdb");
+if ($conn->connect_error) {
+die("Conexión fallida: " . $conn->connect_error);
+}
+// Usuario de prueba
+$username = "raul";
+$password = "123456";
+$hashed_password = password_hash($password, PASSWORD_DEFAULT);
+// Inserción
+$stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?,
+?)");
+$stmt->bind_param("ss", $username, $hashed_password);
+if ($stmt->execute()) {
+echo "Usuario insertado correctamente";
+} else {
+echo "Error al insertar usuario: " . $stmt->error;
+}
+$stmt->close();
+$conn->close();
+?>
+~~~
+
+
+>
+>
+>
+>
+>
+>
+>
+>
+>
+>
+>
+>
+>
+>
+<
+
+
+
+
+---
+
+![](images/ba1.png)
 ![](images/ba1.png)
 ![](images/ba1.png)
 ![](images/ba1.png)
