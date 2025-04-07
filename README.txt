@@ -32,7 +32,17 @@ Esto puede incluir credenciales débiles, almacenamiento inseguro de contraseña
 
 Vamos realizando operaciones:
 
-## Creación de la Base de Datos
+## Operaciones previas
+---
+Antes de comenzar tenemos que realizar varias operaciones previas:
+
+- Comprobar la base de datos con la que vamos a trabajar:
+
+- Descargar el diccionario de contraseñas con el que vamos a realizar un ataque de fuerza bruta.
+
+ 
+###Creación de la Base de Datos
+---
 
 Para realizar esta actividad necesitamos acceder a una Base de datos con usuarios y contraseñas. Si ya la has creado en la actividad de Explotación y mitigación de ataques de inyección SQL, no es necesario que la crees de nuevo. Si no la has creado, puedes verlo en <https://github.com/jmmedinac03vjp/PPS-Unidad3Actividad4-InyeccionSQL> en la sección de Creación de Base de datos.
 
@@ -44,7 +54,22 @@ http://localhost:8080
 
 ![](images/ba1.png)
 
+
+## Descargar el diccionario de contraseñas
+
+Podemos encontrar muchos archivos de contraseñas. Vamos a utilizar el que se encuentra en la siguiente dirección:
+ <https://weakpass.com/download/90/rockyou.txt.gz>
+
+Lo descargarmos dentro de nuestro equipo, con el que vamos a simular un atacante,y una vez descargado,lo colocamos en el directorio que deseemos, descargamos con wget y descomprimimos el archivo. En el caso de que utilizemos Linux:
+
+~~~
+cd /usr/share
+wget https://weakpass.com/download/90/rockyou.txt.gz
+gunzip rockyou.txt.gz
+~~~
+
 ## Código vulnerable
+---
 
 El código contiene varias vulnerabilidades que pueden ser explotadas para realizar ataques de autenticación rota.
 
@@ -116,10 +141,65 @@ Y si es correcta nos lo indica:
 
 4. Falta de gestión segura de sesiones: No se generan tokens de sesión seguros tras un inicio de sesión exitoso.
 
+
+## Explotación de vulnerabilidades de Autenticación Débil
+
+Si el usuario root de MySQL no tiene una contraseña asignada, estableced una para evitar posibles inconvenientes al trabajar con MySQL.
+
+
+### Ataque de fuerza bruta con Hydra
+
+Si el sistema no tiene un límite de intentos fallidos, se puede usar Hydra para adivinar contraseñas:
+
+Hydra es un malware de tipo troyano bancario que se enfoca en infectar dispositivos Android para robar credenciales bancarias. Además, proporciona una puerta trasera a los atacantes que permite incluir el dispositivo como parte de una botnet y realizar otras actividades maliciosas.
+
+En esta ocasión vamos a simular ser los atacantes y vamos a hacer un ataque de fuerza bruta con Hydra. Intentaremos acceder con todos los usuarios y las contraseñas incluidas en el diccionario rockyou que hemos descargado anteriormente. 
+
+~~~
+hydra -l admin -P /usr/share/rockyou.txt localhost http-post-form "/login_weak.php:username=^USER^&password=^PASS^:Usuario o contraseña incorrectos" -V
+~~~
+
+Explicación de los parámetros:
+• -l el usuario con el que vamos a probar el login. 
+• http-post-form: Indica que estás atacando un formulario de autenticación con método POST.
+• "/login_weak.php:username=^USER^&password=^PASS^:Fallo":
+	o /login_weak.php → Ruta de la página de inicio de sesión.
+	o username=^USER^&password=^PASS^ → Parámetros que se envían en la solicitud POST. Hydra reemplazará ^USER^ y ^PASS^ con los valores de la lista de usuarios y contraseñas.
+	o Fallo → Texto que aparece en la respuesta cuando el inicio de sesión falla. Se puede cambiar por el mensaje real de error que muestra la página cuando una contraseña es incorrecta (por ejemplo, "Usuario o contraseña incorrectos").
 ---
 
+Aquí podemos ver cómo lanzamos el comando:
 
-![](images/ba1.png)
+![](images/ba4.png)
+
+Si encontramos un resultado correcto de autenticación, vemos como nos lo muestra:
+
+![](images/ba5.png)
+
+### Explotación de SQL Injection
+
+Cómo ya vimos en la actividad de Inyección de SQL, el atacante puede intentar un payload malicioso en el campo de contraseña:
+
+~~~
+username: admin
+password: ' OR '1'='1
+~~~
+
+Esto convertiría la consulta en:
+
+~~~
+SELECT * FROM users WHERE username = 'admin' AND password = '' OR '1'='1';
+~~~
+
+Debido a que '1'='1' es siempre verdadero, el atacante obtendría acceso.
+
+![](images/ba6.png)
+
+## Mitigación: Código Seguro en PHP
+
+** Uso de contraseñas cifradas con password_hash**
+---
+
 ![](images/ba1.png)
 ![](images/ba1.png)
 ![](images/ba1.png)
