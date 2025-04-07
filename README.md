@@ -19,15 +19,14 @@ Esto puede incluir credenciales débiles, almacenamiento inseguro de contraseña
 - Descubrimiento de credenciales de usuario.
 - Ejecución de ataques de suplantación de usuarios. 
 
-- 
+ 
 ## ACTIVIDADES A REALIZAR
 ---
 > Lee detenidamente la sección de vulnerabilidades de subida de archivos.  de la página de PortWigger <https://portswigger.net/web-security/authentication>
 >
 > Lee el siguiente [documento sobre Explotación y Mitigación de ataques de Remote Code Execution](./files/ExplotacionYMitigacionBrokenAuthentication.pdf>
 > 
-> También y como marco de referencia, tienes [ la sección de correspondiente de los Procesos de Registros de Usuarios del  **Proyecto Web Security Testing Guide** (WSTG) del proyecto **OWASP**.](https://owasp.org/www-project-web-security-testing-guide/stable/4-Web_Application_Security_Testing/03-Identity_Management_Testing/02-Test_User_Registration_Process)
->
+> También y como marco de referencia, tienes [ la sección de correspondiente de los Procesos de Registros de Usuarios del  **Proyecto Web Security Testing Guide** (WSTG) del proyecto **OWASP**.](https://owasp.org/www-project-web-security-testing-guide/stable/4-Web_Application_Security_Testing/03-Identity_Management_Testing/02-Test_User_Registration_Process)>
 
 
 Vamos realizando operaciones:
@@ -160,11 +159,17 @@ hydra -l admin -P /usr/share/rockyou.txt localhost http-post-form "/login_weak.p
 ~~~
 
 Explicación de los parámetros:
+
 • -l el usuario con el que vamos a probar el login. 
+
 • http-post-form: Indica que estás atacando un formulario de autenticación con método POST.
+
 • "/login_weak.php:username=^USER^&password=^PASS^:Fallo":
+
 	o /login_weak.php → Ruta de la página de inicio de sesión.
+
 	o username=^USER^&password=^PASS^ → Parámetros que se envían en la solicitud POST. Hydra reemplazará ^USER^ y ^PASS^ con los valores de la lista de usuarios y contraseñas.
+
 	o Fallo → Texto que aparece en la respuesta cuando el inicio de sesión falla. Se puede cambiar por el mensaje real de error que muestra la página cuando una contraseña es incorrecta (por ejemplo, "Usuario o contraseña incorrectos").
 ---
 
