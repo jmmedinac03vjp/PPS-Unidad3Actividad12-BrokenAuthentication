@@ -36,6 +36,7 @@ Vamos realizando operaciones:
 Antes de comenzar tenemos que realizar varias operaciones previas:
 
 - Comprobar la base de datos con la que vamos a trabajar:
+	- Para esta actividad tenemos una base de datos con nombre usuarios, con campos id, usuario, contrasenya.
 
 - Descargar el diccionario de contraseñas con el que vamos a realizar un ataque de fuerza bruta.
 
@@ -244,18 +245,17 @@ Para almacenar las contraseñas hasheadas, deberemos de modificar la tabla donde
 error_reporting(E_ALL);
 ini_set('display_errors',1);
 // Conexión a la base de datos
-$conn = new mysqli("localhost", "root", "root", "testdb");
+$conn = new mysqli("database", "root", "josemi", "SQLi");
 if ($conn->connect_error) {
 die("Conexión fallida: " . $conn->connect_error);
 }
 // Usuario de prueba
-$username = "raul";
-$password = "123456";
-$hashed_password = password_hash($password, PASSWORD_DEFAULT);
+$usuario = "raul";
+$contrasenya = "123456";
+$hashed_password = password_hash($contrasenya, PASSWORD_DEFAULT);
 // Inserción
-$stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?,
-?)");
-$stmt->bind_param("ss", $username, $hashed_password);
+$stmt = $conn->prepare("INSERT INTO usuarios (usuario, contrasenya) VALUES (?,?)");
+$stmt->bind_param("ss", $usuario, $hashed_password);
 if ($stmt->execute()) {
 echo "Usuario insertado correctamente";
 } else {
@@ -266,8 +266,56 @@ $conn->close();
 ?>
 ~~~
 
+**PASSWORD_DEFAULT** usa actualmente **BCRYPT**, pero se actualizará automáticamente en versiones futuras de PHP. Si deseas más control, puedes usar **PASSWORD_BCRYPT** o **PASSWORD_ARGON2ID**.
 
+>Como vemos, una vez ejecutado nos informa que el usuario raul con contraseña 123456 ha sido insertado.
 >
+>![](images/ba8.png)
+>
+> Lo podemos ver accediendo al servicio phpmyadmin: `http://localhost:8080`
+>
+>![](images/ba9.png)
+>
+> También puedes obtener los usuarios conectandote a la base de datos y ejecutando la consulta:
+> ~~~
+>SELECT * from usuarios
+>~~~
+
+La función **password_hash()** con **PASSWORD_BCRYPT** genera un hash de hasta 60 caracteres, y con
+PASSWORD_ARGON2ID, incluso más (hasta 255). Por eso, se necesita que la columna pueda almacenarlos
+adecuadamente.
+
+Aplicando mitigaciones de uso de contraseñas con password_hash tendríamos el siguiente archivo: **login_weak.php**:
+(Recuerda que tienes que cambiar miContraseña por tu contraseña de root)
+~~~
+<?php
+$conn = new mysqli("database", "root", "miContraseña", "SQLi");
+if ($conn->connect_error) {
+die("Error de conexión: " . $conn->connect_error);
+}
+if ($_SERVER["REQUEST_METHOD"] == "POST" || $_SERVER["REQUEST_METHOD"] == "GET") {
+$username = $_REQUEST["usuario"];
+$password = $_REQUEST["contrasenya"];
+}
+// NO PREVENIMOS SQL INJECTION, SOLO SE AGREGA PASSWORD_HASH
+$query = "SELECT contrasenya FROM usuarios WHERE usuario = '$username'";
+print("Consulta SQL: " . $query . "<br>");
+$result = $conn->query($query);
+if ($result->num_rows > 0) {
+$row = $result->fetch_assoc();
+$hashed_password = $row["contrasenya"];
+// Verificación de contraseña hasheada
+if (password_verify($contrasenya, $hashed_password)) {
+echo "Inicio de sesión exitoso";
+} else {
+echo "Usuario o contraseña incorrectos";
+}
+} else {
+echo "Usuario no encontrado";
+}
+$conn->close();
+?>
+~~~
 >
 >
 >
@@ -288,7 +336,6 @@ $conn->close();
 
 ---
 
-![](images/ba1.png)
 ![](images/ba1.png)
 ![](images/ba1.png)
 ![](images/ba1.png)
