@@ -103,7 +103,7 @@ Crear al archivo **login_weak.php** con el siguiente contenido (tencuidado de su
 ~~~
 <?php
 // creamos la conexión 
-$conn = new mysqli("database", "root", "josemi", "SQLi");
+$conn = new mysqli("database", "root", "MyPassword", "SQLi");
 
 if ($conn->connect_error) {
         // Excepción si nos da error de conexión
@@ -347,7 +347,7 @@ Aplicando mitigaciones de uso de contraseñas con password_hash tendríamos el s
 ~~~
 <?php
 // creamos la conexión 
-$conn = new mysqli("database", "root", "josemi", "SQLi");
+$conn = new mysqli("database", "root", "MyPassword", "SQLi");
 
 if ($conn->connect_error) {
         // Excepción si nos da error de conexión
@@ -418,7 +418,7 @@ Creamos el archivo **login_weak2.php** con el siguiente contenido:
 ~~~
 <?php
 // Conexión
-$conn = new mysqli("database", "root", "josemi", "SQLi");
+$conn = new mysqli("database", "root", "MyPassword", "SQLi");
 if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
 }
@@ -505,12 +505,12 @@ Vemos como se han añadido las columnas indicadas:
 
 **Código seguro**
 
-Crea el ficher **login_weak3.php** con el siguiete contenido:
+Crea el ficher **login_weak3.php** con el siguiete contenido (recuerda cambiar la contraseña):
 
 ~~~
 <?php
 // Conexión
-$conn = new mysqli("database", "root", "josemi", "SQLi");
+$conn = new mysqli("database", "root", "MyPassword", "SQLi");
 if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
 }
@@ -639,11 +639,11 @@ ALTER TABLE usuarios ADD last_attempt TIMESTAMP NULL DEFAULT NULL;
 
 **🔐 2. login_weak4.php (login + generación del código)**
 
-Crea el archivo login_weak4.php con el siguiente contenido:
+Crea el archivo login_weak4.php con el siguiente contenido (recuerda cambiar la contraseña):
 
 ~~~
 <?php
-$conn = new mysqli("database", "root", "josemi", "SQLi");
+$conn = new mysqli("database", "root", "MyPassword", "SQLi");
 if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
 }
@@ -715,12 +715,12 @@ echo "<a href='verificar_mfa.php'>Ir a verificación MFA</a>";
 
 **✅ 4. verificar_mfa.php (verificación del código)**
 
-Creamos el archivo **verificar_mfa.php** que nos indicará si el código introducido es correcto.
+Creamos el archivo **verificar_mfa.php** que nos indicará si el código introducido es correcto (recuerda cambiar la contraseña).
 
 ~~~
 <?php
 session_start();
-$conn = new mysqli("database", "root", "josemi", "SQLi");
+$conn = new mysqli("database", "root", "MyPassword", "SQLi");
 if ($conn->connect_error) {
     die("Error de conexión: " . $conn->connect_error);
 }
