@@ -41,7 +41,7 @@ Antes de comenzar tenemos que realizar varias operaciones previas:
 - Descargar el diccionario de contraseñas con el que vamos a realizar un ataque de fuerza bruta.
 
  
-###Creación de la Base de Datos
+### Creación de la Base de Datos
 ---
 
 Para realizar esta actividad necesitamos acceder a una Base de datos con usuarios y contraseñas. Si ya la has creado en la actividad de Explotación y mitigación de ataques de inyección SQL, no es necesario que la crees de nuevo. Si no la has creado, puedes verlo en <https://github.com/jmmedinac03vjp/PPS-Unidad3Actividad4-InyeccionSQL> en la sección de Creación de Base de datos.
@@ -55,12 +55,25 @@ http://localhost:8080
 ![](images/ba1.png)
 
 
-## Descargar el diccionario de contraseñas
+### Instalar **hydra** en tu equipos.
+
+Vamos a realizar un ataque de fuerza bruta para intentar recuperar las contraseñas. Esto lo haremos con el malware **hydra**
+
+Si tu equipo es Linux, puedes instalarlo con:
+
+~~~
+sudo apt install hydra
+~~~
+
+Si tienes Windows puedes descargarlo desde la página del desarrollador: <https://www.incibe.es/servicio-antibotnet/info/Hydra>
+
+
+### Descargar el diccionario de contraseñas
 
 Podemos encontrar muchos archivos de contraseñas. Vamos a utilizar el que se encuentra en la siguiente dirección:
  <https://weakpass.com/download/90/rockyou.txt.gz>
 
-Lo descargarmos dentro de nuestro equipo, con el que vamos a simular un atacante,y una vez descargado,lo colocamos en el directorio que deseemos, descargamos con wget y descomprimimos el archivo. En el caso de que utilizemos Linux:
+Lo descargarmos dentro de **nuestro equipo, con el que vamos a simular serr nosotros un atacante**,y una vez descargado, lo colocamos en el directorio que deseemos, descargamos con wget y descomprimimos el archivo. En el caso de que utilizemos Linux:
 
 ~~~
 cd /usr/share
@@ -153,7 +166,9 @@ Si el sistema no tiene un límite de intentos fallidos, se puede usar Hydra para
 
 Hydra es un malware de tipo troyano bancario que se enfoca en infectar dispositivos Android para robar credenciales bancarias. Además, proporciona una puerta trasera a los atacantes que permite incluir el dispositivo como parte de una botnet y realizar otras actividades maliciosas.
 
-En esta ocasión vamos a simular ser los atacantes y vamos a hacer un ataque de fuerza bruta con Hydra. Intentaremos acceder con todos los usuarios y las contraseñas incluidas en el diccionario rockyou que hemos descargado anteriormente. 
+En esta ocasión vamos a simular ser los atacantes y vamos a hacer un ataque de fuerza bruta con Hydra. Intentaremos acceder con todos los usuarios y las contraseñas incluidas en el diccionario rockyou.txt que hemos descargado anteriormente. 
+
+Recordamos que seremos nosotros los atacantes, por eso desde nuestro equipo anfitrión, donde hemos descargado hydra y el diccionario, ejecutamos:
 
 ~~~
 hydra -l admin -P /usr/share/rockyou.txt localhost http-post-form "/login_weak.php:username=^USER^&password=^PASS^:Usuario o contraseña incorrectos" -V
@@ -167,11 +182,11 @@ Explicación de los parámetros:
 
 • "/login_weak.php:username=^USER^&password=^PASS^:Fallo":
 
-	o /login_weak.php → Ruta de la página de inicio de sesión.
+	- /login_weak.php → Ruta de la página de inicio de sesión.
 
-	o username=^USER^&password=^PASS^ → Parámetros que se envían en la solicitud POST. Hydra reemplazará ^USER^ y ^PASS^ con los valores de la lista de usuarios y contraseñas.
+	- username=^USER^&password=^PASS^ → Parámetros que se envían en la solicitud POST. Hydra reemplazará ^USER^ y ^PASS^ con los valores de la lista de usuarios y contraseñas.
 
-	o Fallo → Texto que aparece en la respuesta cuando el inicio de sesión falla. Se puede cambiar por el mensaje real de error que muestra la página cuando una contraseña es incorrecta (por ejemplo, "Usuario o contraseña incorrectos").
+	- Fallo → Texto que aparece en la respuesta cuando el inicio de sesión falla. Se puede cambiar por el mensaje real de error que muestra la página cuando una contraseña es incorrecta (por ejemplo, "Usuario o contraseña incorrectos").
 ---
 
 Aquí podemos ver cómo lanzamos el comando:
@@ -182,7 +197,9 @@ Si encontramos un resultado correcto de autenticación, vemos como nos lo muestr
 
 ![](images/ba5.png)
 
-### Explotación de SQL Injection
+
+## Explotación de SQL Injection
+---
 
 Cómo ya vimos en la actividad de Inyección de SQL, el atacante puede intentar un payload malicioso en el campo de contraseña:
 
@@ -201,10 +218,11 @@ Debido a que '1'='1' es siempre verdadero, el atacante obtendría acceso.
 
 ![](images/ba6.png)
 
+
 ## Mitigación: Código Seguro en PHP
 ---
 
-** Uso de contraseñas cifradas con password_hash**
+**Uso de contraseñas cifradas con password_hash**
 ---
 
 La primera aproximación es no guardar las contraseñas en texto, sino aplicarle encriptación o hash que lo hemos visto ya en los contenidos teóricos.
@@ -219,29 +237,27 @@ Para almacenar las contraseñas hasheadas, deberemos de modificar la tabla donde
 >
 > - Accedemos al contenedor de la BBDD:
 >
->~~~
-> docker exec -it lamp-mysql8 /bin/bash
->~~~
+~~~
+ docker exec -it lamp-mysql8 /bin/bash
+~~~
 >
 > - Nos conectamos a la Base de Datos como usuario root con mysql y despues ejecutar la consulta).
 >
->~~~
-> mysql -u root -p
->~~~
+~~~
+ mysql -u root -p
+~~~
 >
 > - Y seleccionamos la BBDD y modificamos la tabla:
 >
->~~~
-> USE usuarios
-> ALTER TABLE usuarios MODIFY contrasenya VARCHAR(255) NOT NULL; 
->~~~
+~~~
+ USE usuarios
+ ALTER TABLE usuarios MODIFY contrasenya VARCHAR(255) NOT NULL; 
+~~~
 >
->![](images/ba7.png)
+![](images/ba7.png)
 
 
->**Creamos la función *ạdd_users.php* para introducir los usuarios con su contraseña hasheada:
-(
-Acuérdate de cambiar MiContraseña por la tuya de root)
+>Creamos la función **ạdd_users.php** para introducir los usuarios con su contraseña hasheada (Acuérdate de cambiar MiContraseña por la tuya de root):
 
 ~~~
 <?php
@@ -269,21 +285,21 @@ $conn->close();
 ?>
 ~~~
 
-La función **PASSWORD_DEFAULT** usa actualmente **BCRYPT**, pero se actualizará automáticamente en versiones futuras de PHP. Si deseas más control, puedes usar **PASSWORD_BCRYPT** o **PASSWORD_ARGON2ID**.
+En la función **pasword_hash()"** utilizamos la función por defecto: **PASSWORD_DEFAULT** que usa actualmente **BCRYPT**, pero se actualizará automáticamente en versiones futuras de PHP. Si deseas más control, puedes usar **PASSWORD_BCRYPT** o **PASSWORD_ARGON2ID**.
 
 >Como vemos, una vez ejecutado nos informa que el usuario raul con contraseña 123456 ha sido insertado.
 >
 >![](images/ba8.png)
->
-> Lo podemos ver accediendo al servicio phpmyadmin: `http://localhost:8080`
->
->![](images/ba9.png)
->
-> También puedes obtener los usuarios conectandote a la base de datos y ejecutando la consulta:
->
-> ~~~
->SELECT * from usuarios
->~~~
+
+ Lo podemos ver accediendo al servicio phpmyadmin: `http://localhost:8080`
+
+![](images/ba9.png)
+
+ También puedes obtener los usuarios conectandote a la base de datos y ejecutando la consulta:
+
+ ~~~
+SELECT * from usuarios
+~~~
 
 La función **password_hash()** con **PASSWORD_BCRYPT** genera un hash de hasta 60 caracteres, y con
 PASSWORD_ARGON2ID, incluso más (hasta 255). Por eso, se necesita que la columna pueda almacenarlos
@@ -344,13 +360,13 @@ Como vemos en la siguiente imagen nos da un login exitoso:
 También puedes probar a usuarlos introduciendo en el navegador:
 
 ~~~
-http://localhost/login_weak.php?username=raul&password=123456
+http://localhost/login_weak1.php?username=raul&password=123456
 ~~~
 
-Si introducimos dátos no correcto dará el mensaje de "Usuario o contraseña no correctos"
+Si introducimos datos no correcto dará el mensaje de "Usuario o contraseña no correctos"
 
 ~~~
-http://localhost/login_weak.php?username=raul&password=1234
+http://localhost/login_weak1.php?username=raul&password=1234
 ~~~
 
 ![](images/ba10.png)
