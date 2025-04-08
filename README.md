@@ -240,12 +240,15 @@ Para almacenar las contraseñas hasheadas, deberemos de modificar la tabla donde
 
 
 >**Creamos la función *ạdd_users.php* para introducir los usuarios con su contraseña hasheada:
+(
+Acuérdate de cambiar MiContraseña por la tuya de root)
+
 ~~~
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors',1);
 // Conexión a la base de datos
-$conn = new mysqli("database", "root", "josemi", "SQLi");
+$conn = new mysqli("database", "root", "MiContraseña", "SQLi");
 if ($conn->connect_error) {
 die("Conexión fallida: " . $conn->connect_error);
 }
@@ -266,7 +269,7 @@ $conn->close();
 ?>
 ~~~
 
-**PASSWORD_DEFAULT** usa actualmente **BCRYPT**, pero se actualizará automáticamente en versiones futuras de PHP. Si deseas más control, puedes usar **PASSWORD_BCRYPT** o **PASSWORD_ARGON2ID**.
+La función **PASSWORD_DEFAULT** usa actualmente **BCRYPT**, pero se actualizará automáticamente en versiones futuras de PHP. Si deseas más control, puedes usar **PASSWORD_BCRYPT** o **PASSWORD_ARGON2ID**.
 
 >Como vemos, una vez ejecutado nos informa que el usuario raul con contraseña 123456 ha sido insertado.
 >
@@ -277,6 +280,7 @@ $conn->close();
 >![](images/ba9.png)
 >
 > También puedes obtener los usuarios conectandote a la base de datos y ejecutando la consulta:
+>
 > ~~~
 >SELECT * from usuarios
 >~~~
@@ -285,37 +289,73 @@ La función **password_hash()** con **PASSWORD_BCRYPT** genera un hash de hasta 
 PASSWORD_ARGON2ID, incluso más (hasta 255). Por eso, se necesita que la columna pueda almacenarlos
 adecuadamente.
 
-Aplicando mitigaciones de uso de contraseñas con password_hash tendríamos el siguiente archivo: **login_weak.php**:
+Aplicando mitigaciones de uso de contraseñas con password_hash tendríamos el siguiente archivo: **login_weak1.php**:
 (Recuerda que tienes que cambiar miContraseña por tu contraseña de root)
 ~~~
 <?php
-$conn = new mysqli("database", "root", "miContraseña", "SQLi");
+// creamos la conexión 
+$conn = new mysqli("database", "root", "josemi", "SQLi");
+
 if ($conn->connect_error) {
-die("Error de conexión: " . $conn->connect_error);
+        // Excepción si nos da error de conexión
+        die("Error de conexión: " . $conn->connect_error);
 }
 if ($_SERVER["REQUEST_METHOD"] == "POST" || $_SERVER["REQUEST_METHOD"] == "GET") {
-$username = $_REQUEST["usuario"];
-$password = $_REQUEST["contrasenya"];
-}
-// NO PREVENIMOS SQL INJECTION, SOLO SE AGREGA PASSWORD_HASH
-$query = "SELECT contrasenya FROM usuarios WHERE usuario = '$username'";
-print("Consulta SQL: " . $query . "<br>");
-$result = $conn->query($query);
-if ($result->num_rows > 0) {
-$row = $result->fetch_assoc();
-$hashed_password = $row["contrasenya"];
-// Verificación de contraseña hasheada
-if (password_verify($contrasenya, $hashed_password)) {
-echo "Inicio de sesión exitoso";
-} else {
-echo "Usuario o contraseña incorrectos";
-}
-} else {
-echo "Usuario no encontrado";
+        // Recogemos los datos pasados
+        $username = $_REQUEST["username"];
+        $password = $_REQUEST["password"];
+
+        print("Usuario: " . $username . "<br>");
+        print("Contraseña: " . $password . "<br>");
+
+        // NO PREVENIMOS SQL INJECTION, SOLO SE AGREGA PASSWORD_HASH
+        $query = "SELECT contrasenya FROM usuarios WHERE usuario = '$username'";
+        print("Consulta SQL: " . $query . "<br>");
+
+        //realizamos la consulta y recogemos los resultados
+        $result = $conn->query($query);
+        if ($result->num_rows > 0) {
+                $row = $result->fetch_assoc();
+                $hashed_password = $row["contrasenya"];
+                // Verificación de contraseña hasheada
+                if (password_verify($password, $hashed_password)) {
+                        echo "Inicio de sesión exitoso";
+                } else {
+                        echo "Usuario o contraseña incorrectos";
+                }
+        } else {
+                echo "Usuario no encontrado";
+        }
 }
 $conn->close();
+
 ?>
+<form method="post">
+        <input type="text" name="username" placeholder="Usuario">
+        <input type="password" name="password" placeholder="Contrasenya">
+        <button type="submit">Iniciar Sesión</button>
+</form>
 ~~~
+
+Como vemos en la siguiente imagen nos da un login exitoso:
+
+![](images/ba10.png)
+
+También puedes probar a usuarlos introduciendo en el navegador:
+
+~~~
+http://localhost/login_weak.php?username=raul&password=123456
+~~~
+
+Si introducimos dátos no correcto dará el mensaje de "Usuario o contraseña no correctos"
+
+~~~
+http://localhost/login_weak.php?username=raul&password=1234
+~~~
+
+![](images/ba10.png)
+
+
 >
 >
 >
@@ -336,7 +376,6 @@ $conn->close();
 
 ---
 
-![](images/ba1.png)
 ![](images/ba1.png)
 ![](images/ba1.png)
 ![](images/ba1.png)
