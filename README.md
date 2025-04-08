@@ -35,10 +35,22 @@ Vamos realizando operaciones:
 ---
 Antes de comenzar tenemos que realizar varias operaciones previas:
 
+- Iniciar el entorno de pruebas
+
 - Comprobar la base de datos con la que vamos a trabajar:
 	- Para esta actividad tenemos una base de datos con nombre usuarios, con campos id, usuario, contrasenya.
 
 - Descargar el diccionario de contraseñas con el que vamos a realizar un ataque de fuerza bruta.
+
+
+
+### Iniciar entorno de pruebas
+
+-Situáte en la carpeta de del entorno de pruebas de nuestro servidor LAMP e inicia el esce>
+
+~~~
+docker-compose up -d
+~~~
 
  
 ### Creación de la Base de Datos
