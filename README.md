@@ -769,21 +769,6 @@ $conn->close();
 
 ![](images/ba13.png)
 
->
->
-<
-
-
-
-
----
-
-![](images/ba1.png)
-![](images/ba1.png)
-![](images/ba1.png)
-
-![](images/.png)
-
 
 
 🔒 Flujo completo del Login con MFA
@@ -808,6 +793,7 @@ $conn->close();
 ✔  Protege contra ataques de fuerza bruta, incluso si la contraseña es robada.
 
 ✔  Fácil de extender a SMS o aplicaciones como Google Authenticator.
+
 
 ## ENTREGA
 
