@@ -262,7 +262,7 @@ Para almacenar las contraseñas hasheadas, deberemos de modificar la tabla donde
 > - Y seleccionamos la BBDD y modificamos la tabla:
 >
 ~~~
- USE usuarios
+ USE SQLi
  ALTER TABLE usuarios MODIFY contrasenya VARCHAR(255) NOT NULL; 
 ~~~
 >
