@@ -744,7 +744,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $now = new DateTime();
     $expires_time = new DateTime($mfa_expires);
 
-    if ($code_input === $mfa_code && $now < $expires_time) {
+    if ($code_input == $mfa_code && $now < $expires_time) {
         echo "✅ Autenticación multifactor exitosa. Bienvenido, $username.";
 
         // Limpieza del código MFA
