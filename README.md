@@ -633,8 +633,8 @@ Accede a la BBDD como hemos hecho al principio de la actividad y modificala de l
 
 ~~~
 USE SQLi
-ALTER TABLE usuarios ADD failed_attempts INT DEFAULT 0;
-ALTER TABLE usuarios ADD last_attempt TIMESTAMP NULL DEFAULT NULL;
+ALTER TABLE usuarios ADD mfa_code VARCHAR (6) DEFAULT 0;
+ALTER TABLE usuarios ADD mfa_expires TIMESTAMP NULL DEFAULT NULL;
 ~~~
 
 **🔐 2. login_weak4.php (login + generación del código)**
